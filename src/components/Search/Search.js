@@ -26,7 +26,7 @@ class Search extends  React.Component {
     };
 
     fetchSearchResults = ( updatedPageNo = '', query ) => {
-        const pageNumber = updatedPageNo ? `&page=${updatedPageNo}` : '';
+        const pageNumber = updatedPageNo ? `&page[offset]=${updatedPageNo}` : '';
         const searchUrl = `https://search.outdoorsy.com/rentals?filter[keywords]=${query}&page[limit]=8${pageNumber}`;
 
         if ( this.cancel ){
