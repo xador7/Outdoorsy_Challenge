@@ -25,8 +25,8 @@ class Search extends  React.Component {
         return Math.floor(total / denominator) + valueToBeAdded;
     };
 
-    fetchSearchResults = ( updatePageNo = '', query ) => {
-        const pageNumber = updatePageNo ? `&page[offset]=8` : '';
+    fetchSearchResults = ( updatedPageNo = '', query ) => {
+        const pageNumber = updatedPageNo ? `&page=${updatedPageNo}` : '';
         const searchUrl = `https://search.outdoorsy.com/rentals?filter[keywords]=${query}&page[limit]=8${pageNumber}`;
 
         if ( this.cancel ){
@@ -38,6 +38,7 @@ class Search extends  React.Component {
             cancelToken: this.cancel.token
         })
             .then((res) => {
+                const data = res.data;
                 const total = res.data.length;
                 const totalPagesCount = this.getPagesCount( total, 8 );
                 const resultNotFoundMsg = !res.data.length
@@ -46,7 +47,7 @@ class Search extends  React.Component {
                 this.setState({
                     results: res.data,
                     totalResults: res.data.length,
-                    currentPageNo: updatePageNo,
+                    currentPageNo: updatedPageNo,
                     totalPages: totalPagesCount,
                     message: resultNotFoundMsg,
                     loading: false,
