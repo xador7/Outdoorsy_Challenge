@@ -10,16 +10,27 @@ class Search extends  React.Component {
             message: '',
         };
     }
+
+    handleOnInputChange = (event) => {
+        const query = event.target.value;
+        console.warn(query);
+        this.setState({query: query , loading: true, message: '' } );
+    };
+
     render() {
+        const { query } = this.state;
+        console.warn('this.state',  this.state );
         return (
             <div className="container">
                 {/*Search Input*/}
                 <label className="search-label" htmlFor="search-input">
                     <input
                         type="text"
-                        value=""
+                        name="query"
+                        value={query}
                         id="search-input"
                         placeholder="Search..."
+                        onChange={this.handleOnInputChange}
                     />
                 </label>
             </div>
