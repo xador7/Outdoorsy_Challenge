@@ -27,7 +27,7 @@ class Search extends  React.Component {
 
     fetchSearchResults = ( updatedPageNo = '', query ) => {
         const pageNumber = updatedPageNo ? `&page[offset]=${updatedPageNo}` : '';
-        const searchUrl = `https://search.outdoorsy.com/rentals?filter[keywords]=${query}&page[limit]=8${pageNumber}`;
+        const searchUrl = `https://search.outdoorsy.com/rentals?filter[keywords]=${query}&page[limit]=8${pageNumber}&address=+United+States`;
 
         if ( this.cancel ){
             this.cancel.cancel();
@@ -39,13 +39,26 @@ class Search extends  React.Component {
         })
             .then((res) => {
                 const data = res.data;
+                // console.log('total', res.data);
+                let tempResult = [];
+                res.data.data.map((result) => {
+                    let id = result.relationships.primary_image.data.id;
+                    for(let inc of res.data.included){
+                        if(inc.type === 'images' && id === inc.id ){
+                            tempResult.push({name: result.attributes.name, url: inc.attributes.url});
+                            //console.warn('inc', inc);
+                        }
+                    }
+                    console.warn('tempResult--->', tempResult);
+                });
+
                 const total = res.data.length;
                 const totalPagesCount = this.getPagesCount( total, 8 );
                 const resultNotFoundMsg = !res.data.length
                     ? 'There are no more search results. Please try a new search.'
                     : '';
                 this.setState({
-                    results: res.data,
+                    results: tempResult,
                     totalResults: res.data.length,
                     currentPageNo: updatedPageNo,
                     totalPages: totalPagesCount,
@@ -89,15 +102,18 @@ class Search extends  React.Component {
 
     renderSearchResults = () => {
         const {results} = this.state;
+        console.warn('results--->', results);
         if (Object.keys(results).length && results.length) {
             return (
-                <div className="results-container">
+                <div>
                     {results.map((result) => {
                         return (
-                            <div className="result-items">
-                                <h6 className="image-username">{result.name}</h6>
-                                <div className="image-wrapper">
+                            <div className="row results-container">
+                                <div className="col-md-3 d-flex align-items-center">
                                     <img className="image" src={result.url} alt={result.name}/>
+                                </div>
+                                <div className="col-md-9 d-flex align-items-center">
+                                    <h2>{result.name}</h2>
                                 </div>
                             </div>
                         );
@@ -113,43 +129,47 @@ class Search extends  React.Component {
         const showNextLink = totalPages > currentPageNo;
 
         return (
-            <div className="container">
-                {/*Search Input*/}
-                <label className="search-label" htmlFor="search-input">
-                    <input
-                        type="text"
-                        value={query}
-                        id="search-input"
-                        placeholder="Search..."
-                        onChange={this.handleOnInputChange}
-                    />
-                </label>
-                {/*Error Message*/}
-                { message && <p className="message">{ message }</p> }
+            <div className="row">
+                <div className="col-md-12">
+                    <div className="container-search">
+                        {/*Search Input*/}
+                        <label className="search-label" htmlFor="search-input">
+                            <input
+                                type="text"
+                                value={ query }
+                                id="search-input"
+                                placeholder="Search..."
+                                onChange={this.handleOnInputChange}
+                            />
+                        </label>
+                        {/*Error Message*/}
+                        { message && <p className="message">{ message }</p> }
 
-                {/*Loader*/}
-                <img  src={Loader} className={`search-loading ${loading ? 'show' : 'hide' }`}  alt="loader"/>
+                        {/*Loader*/}
+                        <img  src={Loader} className={`search-loading ${loading ? 'show' : 'hide' }`}  alt="loader"/>
 
-                {/*Navigation Top*/}
-                <PageNavigation
-                    loading={loading}
-                    showPrevLink={showPrevLink}
-                    showNextLink={showNextLink}
-                    handlePrevClick={() => this.handlePageClick('prev')}
-                    handleNextClick={() => this.handlePageClick('next')}
-                />
+                        {/*Navigation Top*/}
+                        <PageNavigation
+                            loading={loading}
+                            showPrevLink={showPrevLink}
+                            showNextLink={showNextLink}
+                            handlePrevClick={() => this.handlePageClick('prev')}
+                            handleNextClick={() => this.handlePageClick('next')}
+                        />
 
-                {/*Result*/}
-                { this.renderSearchResults() }
+                        {/*Result*/}
+                        { this.renderSearchResults() }
 
-                {/*Navigation Bottom*/}
-                <PageNavigation
-                    loading={loading}
-                    showPrevLink={showPrevLink}
-                    showNextLink={showNextLink}
-                    handlePrevClick={() => this.handlePageClick('prev')}
-                    handleNextClick={() => this.handlePageClick('next')}
-                />
+                        {/*Navigation Bottom*/}
+                        <PageNavigation
+                            loading={loading}
+                            showPrevLink={showPrevLink}
+                            showNextLink={showNextLink}
+                            handlePrevClick={() => this.handlePageClick('prev')}
+                            handleNextClick={() => this.handlePageClick('next')}
+                        />
+                    </div>
+                </div>
             </div>
         )
     }

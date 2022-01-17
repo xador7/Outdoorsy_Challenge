@@ -4,8 +4,10 @@ import Search from "./components/Search/Search";
 class App extends React.Component {
   render() {
     return (
-        <div>
-          <Search/>
+        <div className="container">
+            <div className="row">
+                <Search/>
+            </div>
         </div>
     );
   }
